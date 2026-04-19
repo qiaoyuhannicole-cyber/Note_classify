@@ -33,7 +33,7 @@ import {
   createPerspective, 
   updatePerspective,
   deletePerspective 
-} from '@/lib/db'
+} from '@/lib/data-access'
 import { cn } from '@/lib/utils'
 import { RichTextEditor } from '@/components/shared/rich-text-editor'
 import { ExtensionPanel } from './extension-panel'
@@ -55,7 +55,7 @@ interface QuestionDetailProps {
 export function QuestionDetail({ questionId, onClose, onDeleted }: QuestionDetailProps) {
   const question = useQuestion(questionId)
   const perspectives = usePerspectives(questionId)
-  const categories = useCategories()
+  const { data: categories } = useCategories()
   
   const [isEditingText, setIsEditingText] = useState(false)
   const [editedText, setEditedText] = useState('')
@@ -198,7 +198,7 @@ export function QuestionDetail({ questionId, onClose, onDeleted }: QuestionDetai
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">未分类</SelectItem>
-                {categories?.map((category) => (
+                {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     <div className="flex items-center gap-2">
                       <span 

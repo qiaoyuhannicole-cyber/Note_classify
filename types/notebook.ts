@@ -27,6 +27,7 @@ export const RELATION_TYPE_COLORS: Record<RelationType, string> = {
 // 问题
 export interface Question {
   id: string
+  userId: string
   text: string
   categoryId: string | null
   createdAt: Date
@@ -50,6 +51,7 @@ export interface AnswerPerspective {
 // 分类
 export interface Category {
   id: string
+  userId: string
   name: string
   description?: string
   color?: string
@@ -117,6 +119,9 @@ export interface GraphEdge {
 export interface GraphData {
   nodes: GraphNode[]
   edges: GraphEdge[]
+  canGenerate?: boolean
+  qualifiedCount?: number
+  totalCount?: number
 }
 
 // Wikipedia 推荐结果

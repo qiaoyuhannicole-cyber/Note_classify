@@ -17,7 +17,7 @@ import {
   suggestionToQuestion,
   type WikipediaSuggestion
 } from '@/lib/api/wikipedia'
-import { createQuestion, createRelation, checkDuplicateQuestion, createCategory } from '@/lib/db'
+import { createQuestion, createRelation, checkDuplicateQuestion, createCategory } from '@/lib/data-access'
 import { useRelations, useQuestions } from '@/hooks/use-notebook'
 import { cn } from '@/lib/utils'
 import { generateSmartTag } from '@/lib/utils/category-classifier'
@@ -49,12 +49,12 @@ export function ExtensionPanel({
   const [isAdding, setIsAdding] = useState(false)
   const [addedQuestions, setAddedQuestions] = useState<Set<string>>(new Set())
   
-  const relations = useRelations(questionId)
-  const allQuestions = useQuestions()
+  const relatedQuestions = useRelations(questionId)
+  const { data: allQuestions } = useQuestions()
   
   // 获取已关联的问题
   const relatedQuestionIds = new Set(
-    relations?.flatMap(r => [r.sourceId, r.targetId]).filter(id => id !== questionId)
+    relatedQuestions?.flatMap(r => [r.sourceId, r.targetId]).filter(id => id !== questionId)
   )
   
   // 加载推荐
@@ -163,9 +163,9 @@ export function ExtensionPanel({
             <div className="flex items-center gap-2 px-4 py-3">
               <Lightbulb className="h-4 w-4 text-amber-500" />
               <span className="font-medium">延伸问题</span>
-              {relations && relations.length > 0 && (
+              {relatedQuestions && relatedQuestions.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
-                  {relations.length} 个关联
+                  {relatedQuestions.length} 个关联
                 </Badge>
               )}
             </div>

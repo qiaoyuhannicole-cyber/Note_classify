@@ -19,8 +19,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useCategories, useStats } from '@/hooks/use-notebook'
-import { createCategory, deleteCategory, updateCategory } from '@/lib/db'
+import { createCategory, deleteCategory, updateCategory } from '@/lib/data-access'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/use-toast'
 import {
   Folder,
   FolderOpen,
@@ -43,7 +44,7 @@ export function NotebookSidebar({
   selectedCategory, 
   onSelectCategory 
 }: NotebookSidebarProps) {
-  const categories = useCategories()
+  const { data: categories, refresh } = useCategories()
   const stats = useStats()
   const [isOpen, setIsOpen] = useState(true)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
@@ -105,7 +106,7 @@ export function NotebookSidebar({
             </CollapsibleTrigger>
             
             <CollapsibleContent className="pl-4 space-y-0.5">
-              {categories?.map((category) => (
+              {categories.map((category) => (
                 <CategoryItem
                   key={category.id}
                   category={category}
@@ -140,6 +141,7 @@ export function NotebookSidebar({
       <CreateCategoryDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
+        onCreated={refresh}
       />
       
       {/* 编辑分类对话框 */}
@@ -255,22 +257,40 @@ function CategoryItem({ category, isSelected, onClick, onEdit, onDelete }: Categ
 // 创建分类对话框
 function CreateCategoryDialog({ 
   open, 
-  onOpenChange 
+  onOpenChange,
+  onCreated
 }: { 
   open: boolean
   onOpenChange: (open: boolean) => void 
+  onCreated?: () => void
 }) {
   const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
   
   const handleSubmit = async () => {
     if (!name.trim()) return
     
     setIsSubmitting(true)
-    await createCategory(name.trim())
-    setName('')
-    setIsSubmitting(false)
-    onOpenChange(false)
+    try {
+      await createCategory(name.trim())
+      toast({
+        title: '成功',
+        description: `分类 "${name.trim()}" 已创建`,
+      })
+      // 刷新分类列表
+      onCreated?.()
+      setName('')
+      onOpenChange(false)
+    } catch (error: any) {
+      toast({
+        title: '创建失败',
+        description: error.message || '请重试',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
   
   return (

@@ -3,7 +3,7 @@
 import { useCallback, useRef, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useGraphData } from '@/hooks/use-notebook'
-import { saveLayout, updateRelation, deleteRelation } from '@/lib/db'
+import { saveLayout, updateRelation, deleteRelation } from '@/lib/data-access'
 import { RELATION_TYPE_LABELS, RELATION_TYPE_COLORS, type RelationType } from '@/types/notebook'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dialog'
 import { useGraphData } from '@/hooks/use-notebook'
 import { downloadNotebook, exportToJSON } from '@/lib/utils/export'
-import { clearLayouts } from '@/lib/db'
+import { clearLayouts } from '@/lib/data-access'
 import {
   Download,
   Image,

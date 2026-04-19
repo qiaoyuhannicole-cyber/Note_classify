@@ -1,29 +1,53 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { NotebookSidebar } from '@/components/notebook/notebook-sidebar'
 import { QuestionList } from '@/components/notebook/question-list'
 import { QuestionDetail } from '@/components/notebook/question-detail'
 import { CreateQuestionDialog } from '@/components/notebook/create-question-dialog'
 import { useQuestionsByCategory } from '@/hooks/use-notebook'
+import { useAuth } from '@/contexts/auth-context'
 import { cn } from '@/lib/utils'
 import {
   Plus,
   PanelLeftClose,
   PanelLeft,
   Network,
+  LogOut,
 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function NotebookPage() {
+  const router = useRouter()
+  const { user, loading, signOut, isSupabaseConfigured } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  
-  const questions = useQuestionsByCategory(selectedCategory)
-  
+
+  const { data: questions, loading: questionsLoading } = useQuestionsByCategory(selectedCategory)
+
+  // 检查认证状态（仅在Supabase配置时）
+  useEffect(() => {
+    if (isSupabaseConfigured && !loading && !user) {
+      router.push('/auth')
+    }
+  }, [user, loading, router, isSupabaseConfigured])
+
+  if (loading && isSupabaseConfigured) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">加载中...</p>
+      </div>
+    )
+  }
+
+  if (isSupabaseConfigured && !user) {
+    return null // 会重定向到登录页
+  }
+
   return (
     <div className="h-screen flex overflow-hidden bg-background">
       {/* 左侧边栏 */}
@@ -74,6 +98,12 @@ export default function NotebookPage() {
               <Plus className="h-4 w-4 mr-2" />
               新建问题
             </Button>
+            {isSupabaseConfigured && (
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                退出
+              </Button>
+            )}
           </div>
         </header>
         

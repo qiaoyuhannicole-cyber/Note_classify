@@ -22,8 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { createQuestion, checkDuplicateQuestion, createCategory } from '@/lib/db'
+import { createQuestion, checkDuplicateQuestion, createCategory } from '@/lib/data-access'
 import { AlertCircle } from 'lucide-react'
+import { clearCache } from '@/hooks/use-supabase'
 
 interface CreateQuestionDialogProps {
   open: boolean
@@ -122,6 +123,9 @@ export function CreateQuestionDialog({
         answerText.trim() || undefined
       )
       
+      // 清除缓存，强制重新加载数据
+      clearCache()
+      
       // 重置表单
       setQuestionText('')
       setAnswerText('')
@@ -201,7 +205,7 @@ export function CreateQuestionDialog({
                 自动识别为：{selectedCategory}
               </p>
             )}
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select value={selectedCategory || 'uncategorized'} onValueChange={setSelectedCategory}>
               <SelectTrigger id="category-select">
                 <SelectValue placeholder="选择知识分类" />
               </SelectTrigger>
